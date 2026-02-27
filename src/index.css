@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+:root {
+  --pri: #0A7163;
+  --pri-light: #0D9B87;
+  --pri-dark: #065a4e;
+  --amber: #F59E0B;
+  --danger: #EF4444;
+  --surface: #0f1117;
+  --surface-2: #181d27;
+  --surface-3: #1e2535;
+  --border: #2a3145;
+  --text: #f0f4ff;
+  --text-muted: #8892aa;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; width: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface-2); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.fade-up { animation: fadeUp 0.4s ease forwards; }
+.fade-in { animation: fadeIn 0.3s ease forwards; }
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a3145; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #3a4155; }
+
+/* ── Selection ── */
+::selection { background: #0A716340; color: #f0f4ff; }
+
+/* ── Date input ── */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4) sepia(1) hue-rotate(180deg);
+  cursor: pointer;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── Focus outline ── */
+:focus-visible { outline: 2px solid #0A716360; outline-offset: 2px; border-radius: 8px; }
+
+/* ── line-clamp ── */
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ── Fade animations ── */
+.fade-up { animation: fadeUp 0.3s ease-out; }
+.fade-in { animation: fadeIn 0.2s ease-out; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Chart tooltip ── */
+.recharts-tooltip-wrapper { outline: none !important; }
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a3145; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #3a4155; }
+
+/* ── Selection ─────────────────────────────────────────────────────────────── */
+::selection { background: #0A716340; color: #f0f4ff; }
+
+/* ── Focus ring ────────────────────────────────────────────────────────────── */
+:focus-visible { outline: 2px solid #0A7163; outline-offset: 2px; }
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.fade-up   { animation: fade-up 0.35s ease-out both; }
+.fade-in   { animation: fade-in 0.25s ease-out both; }
+.slide-in  { animation: slide-in-right 0.3s ease-out both; }
+.scale-in  { animation: scale-in 0.2s ease-out both; }
+
+/* Stagger children */
+.stagger > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger > *:nth-child(3) { animation-delay: 0.12s; }
+.stagger > *:nth-child(4) { animation-delay: 0.16s; }
+.stagger > *:nth-child(5) { animation-delay: 0.20s; }
+.stagger > *:nth-child(6) { animation-delay: 0.24s; }
+
+/* ── Number input ──────────────────────────────────────────────────────────── */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
+/* ── Date input ────────────────────────────────────────────────────────────── */
+input[type=date]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4) sepia(1) saturate(0.5);
+  cursor: pointer;
+}
+
+/* ── Recharts custom ───────────────────────────────────────────────────────── */
+.recharts-tooltip-wrapper { z-index: 50 !important; }
+.recharts-legend-item-text { color: #8892aa !important; font-size: 11px !important; }
+
+/* ── Line clamp ────────────────────────────────────────────────────────────── */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

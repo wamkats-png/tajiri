@@ -1,0 +1,13 @@
+{
+  "name": "Tajiri — Smart Budget Tracker",
+  "short_name": "Tajiri",
+  "description": "AI-powered personal finance for Africa",
+  "theme_color": "#0A7163",
+  "background_color": "#0f1117",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
