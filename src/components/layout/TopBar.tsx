@@ -62,15 +62,6 @@ export function TopBar({ title, showBack, actions }: TopBarProps) {
       <div className="flex items-center gap-2">
         {actions}
 
-        {plan === 'free' && (
-          <button
-            onClick={() => navigate('/upgrade')}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F59E0B]/10 border border-[#F59E0B]/20 hover:bg-[#F59E0B]/20 transition-all"
-          >
-            <span className="text-[10px] font-semibold text-[#F59E0B]">FREE</span>
-          </button>
-        )}
-
         {/* Live alerts bell — replaces static bell */}
         <AlertsBell />
 

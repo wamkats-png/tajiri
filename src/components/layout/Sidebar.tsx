@@ -94,18 +94,6 @@ export function Sidebar() {
       {/* Bottom section */}
       <div className="px-4 py-4 border-t border-[#2a3145] space-y-0.5">
         {/* Upgrade banner (free plan) */}
-        {plan === 'free' && (
-          <button
-            onClick={() => navigate('/upgrade')}
-            className="w-full mb-3 rounded-xl bg-gradient-to-r from-[#F59E0B]/10 to-[#F59E0B]/5 border border-[#F59E0B]/20 px-3 py-3 text-left hover:border-[#F59E0B]/40 transition-all duration-200 group"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Zap size={13} className="text-[#F59E0B]" />
-              <span className="text-xs font-semibold text-[#F59E0B]">Upgrade to Business</span>
-            </div>
-            <p className="text-[10px] text-[#4a5568]">Unlock AI features, 2 trackers & more</p>
-          </button>
-        )}
 
         <NavLink
           to="/settings"

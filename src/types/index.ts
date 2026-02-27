@@ -1,5 +1,3 @@
-// ─── User & Auth ─────────────────────────────────────────────────────────────
-
 export type Plan = 'free' | 'business'
 
 export interface UserProfile {
@@ -13,62 +11,49 @@ export interface UserProfile {
   updatedAt: string
 }
 
-// ─── Trackers ─────────────────────────────────────────────────────────────────
-
 export type TrackerSlot = 'tracker1' | 'tracker2'
 
 export interface Tracker {
   id: TrackerSlot
+  userId: string
   name: string
-  active: boolean
-  currency: string
   color: string
-  locked: boolean
-  createdAt: string
-}
-
-// ─── Expenses ─────────────────────────────────────────────────────────────────
-
-export type ExpenseCategory =
-  | 'food'
-  | 'transport'
-  | 'utilities'
-  | 'rent'
-  | 'health'
-  | 'education'
-  | 'entertainment'
-  | 'shopping'
-  | 'salary'
-  | 'business'
-  | 'savings'
-  | 'other'
-
-export type EntryMethod = 'manual' | 'receipt' | 'natural_language'
-
-export interface Expense {
-  id: string
-  trackerId: TrackerSlot
-  amount: number
   currency: string
-  amountUSD?: number
-  category: ExpenseCategory
-  description: string
-  date: string
-  receiptUrl?: string
-  entryMethod: EntryMethod
-  aiParsed?: boolean
-  notes?: string
+  type: 'personal' | 'business' | 'savings' | 'other'
   createdAt: string
   updatedAt: string
 }
 
-// ─── Budgets ──────────────────────────────────────────────────────────────────
+export type ExpenseCategory =
+  | 'food' | 'transport' | 'utilities' | 'rent' | 'health'
+  | 'education' | 'entertainment' | 'shopping' | 'salary'
+  | 'business' | 'savings' | 'other'
+
+export type EntryMethod = 'manual' | 'receipt' | 'nl'
+
+export interface Expense {
+  id: string
+  trackerId: TrackerSlot
+  userId: string
+  description: string
+  amount: number
+  currency: string
+  category: ExpenseCategory
+  date: string
+  notes?: string
+  entryMethod?: EntryMethod
+  aiParsed?: boolean
+  receiptUrl?: string
+  createdAt: string
+  updatedAt: string
+}
 
 export type BudgetPeriod = 'monthly' | 'weekly' | 'yearly'
 
 export interface Budget {
   id: string
   trackerId: TrackerSlot
+  userId: string
   category: ExpenseCategory
   amount: number
   currency: string
@@ -77,7 +62,11 @@ export interface Budget {
   updatedAt: string
 }
 
-// ─── AI ───────────────────────────────────────────────────────────────────────
+export interface AIUsage {
+  count: number
+  limit: number
+  resetAt: string
+}
 
 export interface ChatMessage {
   id: string
@@ -85,37 +74,6 @@ export interface ChatMessage {
   content: string
   timestamp: string
 }
-
-export interface AIUsage {
-  count: number
-  resetDate: string
-  limit: number
-}
-
-// ─── Currency ─────────────────────────────────────────────────────────────────
-
-export interface CurrencyRate {
-  code: string
-  name: string
-  rate: number
-}
-
-export const SUPPORTED_CURRENCIES = [
-  { code: 'UGX', name: 'Ugandan Shilling', symbol: 'USh' },
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
-  { code: 'TZS', name: 'Tanzanian Shilling', symbol: 'TSh' },
-  { code: 'RWF', name: 'Rwandan Franc', symbol: 'Fr' },
-  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
-  { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-  { code: 'GHS', name: 'Ghanaian Cedi', symbol: '₵' },
-] as const
-
-export type CurrencyCode = typeof SUPPORTED_CURRENCIES[number]['code']
-
-// ─── Feature Gates ────────────────────────────────────────────────────────────
 
 export type GatedFeature =
   | 'tracker2'
@@ -127,13 +85,14 @@ export type GatedFeature =
   | 'rename_tracker'
   | 'spending_insights'
 
+// ALL features are free — no paywalls
 export const FEATURE_GATES: Record<GatedFeature, Plan> = {
-  tracker2: 'business',
-  receipt_scan: 'business',
-  natural_language: 'business',
-  ai_chat_unlimited: 'business',
-  reports: 'business',
-  csv_export: 'business',
-  rename_tracker: 'business',
-  spending_insights: 'business',
+  tracker2:          'free',
+  receipt_scan:      'free',
+  natural_language:  'free',
+  ai_chat_unlimited: 'free',
+  reports:           'free',
+  csv_export:        'free',
+  rename_tracker:    'free',
+  spending_insights: 'free',
 }

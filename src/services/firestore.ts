@@ -143,21 +143,21 @@ export async function deleteBudget(uid: string, budgetId: string): Promise<void>
 export async function fetchAIUsage(uid: string): Promise<AIUsage> {
   const snap = await getDoc(doc(db, 'users', uid, 'meta', 'aiUsage'))
   if (!snap.exists()) {
-    return { count: 0, resetDate: new Date().toISOString(), limit: 10 }
+    return { count: 0, resetAt: new Date().toISOString(), limit: 10 }
   }
   return cleanDoc<AIUsage>(snap.data())
 }
 
 export async function incrementAIUsage(uid: string, current: AIUsage): Promise<AIUsage> {
   // Reset monthly
-  const resetDate = new Date(current.resetDate)
+  const resetAt = new Date(current.resetAt)
   const now = new Date()
   const needsReset =
-    now.getMonth() !== resetDate.getMonth() ||
-    now.getFullYear() !== resetDate.getFullYear()
+    now.getMonth() !== resetAt.getMonth() ||
+    now.getFullYear() !== resetAt.getFullYear()
 
   const updated: AIUsage = needsReset
-    ? { count: 1, resetDate: now.toISOString(), limit: current.limit }
+    ? { count: 1, resetAt: now.toISOString(), limit: current.limit }
     : { ...current, count: current.count + 1 }
 
   await setDoc(doc(db, 'users', uid, 'meta', 'aiUsage'), updated)

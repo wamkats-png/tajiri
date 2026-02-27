@@ -98,11 +98,6 @@ function ChatUI() {
           <span className="text-xs text-[#4a5568]">AI Financial Advisor · Online</span>
         </div>
         <div className="flex items-center gap-3">
-          {plan === 'free' && (
-            <span className="text-xs text-[#4a5568]">
-              {remaining} / {10} messages left
-            </span>
-          )}
           {messages.length > 0 && (
             <button onClick={clearChat}
               className="flex items-center gap-1.5 text-xs text-[#4a5568] hover:text-[#8892aa] transition-colors">
@@ -149,14 +144,6 @@ function ChatUI() {
 
       {/* Input */}
       <div className="flex-shrink-0 pt-3 border-t border-[#2a3145]">
-        {!canUseAI && plan === 'free' ? (
-          <div className="rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20 p-4 text-center">
-            <p className="text-sm text-[#F59E0B] mb-2">Monthly AI limit reached.</p>
-            <Button size="sm" onClick={() => {}}>
-              <Zap size={13} /> Upgrade for unlimited
-            </Button>
-          </div>
-        ) : (
           <div className="flex gap-2 items-end">
             <textarea
               ref={inputRef}
@@ -177,7 +164,6 @@ function ChatUI() {
               {thinking ? <Spinner size={16} color="white" /> : <Send size={16} className="text-white" />}
             </button>
           </div>
-        )}
         <p className="text-[10px] text-[#2a3145] text-center mt-2">
           AI responses are for informational purposes only.
         </p>
@@ -187,25 +173,9 @@ function ChatUI() {
 }
 
 export default function ChatPage() {
-  const navigate = useNavigate()
   return (
     <AppShell title="AI Advisor">
-      <GateGuard feature="ai_chat_unlimited" fallback={
-        <div className="flex flex-col items-center justify-center py-20 gap-5 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 flex items-center justify-center">
-            <Sparkles size={28} className="text-[#8B5CF6]" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-[#f0f4ff] mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>AI Financial Advisor</h2>
-            <p className="text-sm text-[#4a5568] max-w-xs leading-relaxed">
-              Ask your CFO anything — spending patterns, budget advice, savings tips — all powered by Claude AI.
-            </p>
-          </div>
-          <Button onClick={() => navigate('/upgrade')}><Zap size={14} /> Upgrade to Business</Button>
-        </div>
-      }>
-        <ChatUI />
-      </GateGuard>
+      <ChatUI />
     </AppShell>
   )
 }

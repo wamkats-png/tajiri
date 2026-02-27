@@ -92,27 +92,6 @@ export default function SettingsPage() {
           </Card>
         </section>
 
-        {/* ── Upgrade banner ── */}
-        {plan === 'free' && (
-          <button
-            onClick={() => navigate('/upgrade')}
-            className="w-full rounded-2xl border border-[#F59E0B]/30 bg-gradient-to-r from-[#F59E0B]/10 to-[#F59E0B]/5 p-5 text-left hover:border-[#F59E0B]/50 transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/25 flex items-center justify-center">
-                  <Zap size={18} className="text-[#F59E0B]" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-[#f0f4ff]">Upgrade to Business</div>
-                  <div className="text-xs text-[#4a5568]">AI, 2 trackers, reports, CSV export</div>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-[#F59E0B]" />
-            </div>
-          </button>
-        )}
-
         {/* ── Trackers ── */}
         <section>
           <h2 className="text-xs font-semibold text-[#4a5568] uppercase tracking-widest mb-3">Trackers</h2>

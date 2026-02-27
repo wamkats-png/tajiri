@@ -91,7 +91,7 @@ export const useAppStore = create<AppState>()(
       clearChat: () => set({ chatMessages: [] }),
       aiUsage: {
         count: 0,
-        resetDate: new Date().toISOString(),
+        resetAt: new Date().toISOString(),
         limit: 10,
       },
       setAIUsage: (aiUsage) => set({ aiUsage }),

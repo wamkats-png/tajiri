@@ -62,6 +62,7 @@ export default function AddExpensePage() {
     try {
       await addExpense({
         trackerId,
+        userId: '',
         description: description.trim(),
         amount: parseFloat(amount),
         currency,

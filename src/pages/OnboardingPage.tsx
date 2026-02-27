@@ -29,11 +29,14 @@ export default function OnboardingPage() {
     try {
       const tracker: Tracker = {
         id: 'tracker1',
+        userId: user.uid,
+        type: type as any,
+        updatedAt: new Date().toISOString(),
         name: name.trim() || 'My Tracker',
-        active: true,
+        
         currency,
         color,
-        locked: false,
+        
         createdAt: new Date().toISOString(),
       }
       await saveTracker(user.uid, tracker)

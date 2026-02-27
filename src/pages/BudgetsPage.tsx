@@ -51,6 +51,7 @@ export default function BudgetsPage() {
     try {
       await saveBudget({
         trackerId,
+        userId: user?.uid ?? '',
         category,
         amount: parseFloat(amount),
         currency: currency || tracker?.currency || 'UGX',

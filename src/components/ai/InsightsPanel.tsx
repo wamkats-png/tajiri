@@ -42,32 +42,10 @@ export function InsightsPanel() {
 
   // Auto-load if business plan and we have data
   useEffect(() => {
-    if (plan === 'business' && expenses.length > 0 && insights.length === 0) {
+    if (expenses.length > 0 && insights.length === 0) {
       load()
     }
   }, [plan, expenses.length])
-
-  if (plan === 'free') {
-    return (
-      <div className="rounded-2xl border border-[#8B5CF6]/20 bg-[#8B5CF6]/5 p-5">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 flex items-center justify-center">
-            <Sparkles size={16} className="text-[#8B5CF6]" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-[#f0f4ff]">AI Spending Insights</div>
-            <div className="text-xs text-[#8B5CF6]">Business plan</div>
-          </div>
-        </div>
-        <p className="text-xs text-[#4a5568] leading-relaxed mb-4">
-          Get personalised AI analysis of your spending patterns, budget warnings, and savings opportunities.
-        </p>
-        <Button size="sm" onClick={() => navigate('/upgrade')}>
-          <Zap size={13} /> Upgrade to unlock
-        </Button>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-3">
