@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Type, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
-import { GateGuard } from '@/components/ui/GateGuard'
 import { CategoryIcon } from '@/components/ui/CategoryIcon'
 import { ReceiptScanner } from '@/components/expense/ReceiptScanner'
 import { NLExpenseInput } from '@/components/expense/NLExpenseInput'
@@ -14,24 +13,20 @@ import { useExpenses } from '@/hooks/useExpenses'
 import { EXPENSE_CATEGORIES, CURRENCIES } from '@/utils/constants'
 import { todayISO } from '@/utils'
 import type { TrackerSlot, ExpenseCategory, EntryMethod } from '@/types'
-import { useToast } from '@/components/ui/Toast'
 import type { ParsedExpense } from '@/services/claude'
 
 type Mode = 'manual' | 'receipt' | 'nl'
 
 export default function AddExpensePage() {
   const navigate  = useNavigate()
-  const { tracker1, tracker2, activeTrackerSlot, getPlan } = useAppStore()
-  const plan = getPlan()
+  const { user, tracker1, tracker2, activeTrackerSlot } = useAppStore()
   const { addExpense } = useExpenses()
-  const { success, error: toastError } = useToast()
 
-  const [mode, setMode]           = useState<Mode>('manual')
-  const [saving, setSaving]       = useState(false)
-  const [error, setError]         = useState('')
-  const [showCats, setShowCats]   = useState(false)
+  const [mode, setMode]         = useState<Mode>('manual')
+  const [saving, setSaving]     = useState(false)
+  const [error, setError]       = useState('')
+  const [showCats, setShowCats] = useState(false)
 
-  // Form
   const [trackerId, setTrackerId]     = useState<TrackerSlot>(activeTrackerSlot)
   const [description, setDescription] = useState('')
   const [amount, setAmount]           = useState('')
@@ -49,7 +44,7 @@ export default function AddExpensePage() {
     if (data.category)    setCategory(data.category as ExpenseCategory)
     if (data.date)        setDate(data.date)
     if (data.notes)       setNotes(data.notes)
-    setMode('manual') // switch to review the form
+    setMode('manual')
   }
 
   async function handleSave() {
@@ -74,10 +69,8 @@ export default function AddExpensePage() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       })
-      success('Expense saved!')
       navigate(-1)
     } catch {
-      toastError('Failed to save expense.')
       setError('Failed to save. Please try again.')
     } finally {
       setSaving(false)
@@ -88,19 +81,11 @@ export default function AddExpensePage() {
     <AppShell title="Add Expense" showBack>
       <div className="space-y-5 fade-up">
 
-        {/* Mode tabs */}
+        {/* Mode tabs — all unlocked */}
         <div className="flex rounded-xl border border-[#2a3145] bg-[#181d27] p-1 gap-1">
-          <ModeTab active={mode === 'manual'} onClick={() => setMode('manual')} label="✏️ Manual" />
-          <GateGuard feature="receipt_scan" fallback={
-            <ModeTab active={false} onClick={() => navigate('/upgrade')} label="📷 Receipt 🔒" locked />
-          }>
-            <ModeTab active={mode === 'receipt'} onClick={() => setMode('receipt')} label="📷 Receipt" />
-          </GateGuard>
-          <GateGuard feature="natural_language" fallback={
-            <ModeTab active={false} onClick={() => navigate('/upgrade')} label="✨ AI Parse 🔒" locked />
-          }>
-            <ModeTab active={mode === 'nl'} onClick={() => setMode('nl')} label="✨ AI Parse" />
-          </GateGuard>
+          <ModeTab active={mode === 'manual'}  onClick={() => setMode('manual')}  label="✏️ Manual" />
+          <ModeTab active={mode === 'receipt'} onClick={() => setMode('receipt')} label="📷 Receipt" />
+          <ModeTab active={mode === 'nl'}      onClick={() => setMode('nl')}      label="✨ AI Parse" />
         </div>
 
         {/* Tracker selector */}
@@ -109,7 +94,7 @@ export default function AddExpensePage() {
             <TrackerPill tracker={tracker1} active={trackerId === 'tracker1'}
               onClick={() => { setTrackerId('tracker1'); setCurrency(tracker1.currency) }} />
           )}
-          {tracker2 && plan === 'business' && (
+          {tracker2 && (
             <TrackerPill tracker={tracker2} active={trackerId === 'tracker2'}
               onClick={() => { setTrackerId('tracker2'); setCurrency(tracker2.currency) }} />
           )}
@@ -137,7 +122,7 @@ export default function AddExpensePage() {
           </Card>
         )}
 
-        {/* Manual form — always visible for review/editing */}
+        {/* Manual form */}
         <Card>
           <div className="space-y-4">
             <Input label="Description" placeholder="What did you spend on?"
@@ -152,14 +137,12 @@ export default function AddExpensePage() {
                 <label className="text-sm font-medium text-[#8892aa] block mb-1.5">Currency</label>
                 <select
                   className="w-full rounded-xl border border-[#2a3145] bg-[#181d27] text-[#f0f4ff] px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A7163]/40"
-                  value={currency} onChange={(e) => setCurrency(e.target.value)}
-                >
+                  value={currency} onChange={(e) => setCurrency(e.target.value)}>
                   {CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
                 </select>
               </div>
             </div>
 
-            {/* Category picker */}
             <div>
               <label className="text-sm font-medium text-[#8892aa] block mb-1.5">Category</label>
               <button onClick={() => setShowCats(!showCats)}
@@ -184,7 +167,8 @@ export default function AddExpensePage() {
             </div>
 
             <Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-            <Input label="Notes (optional)" placeholder="Any extra details..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <Input label="Notes (optional)" placeholder="Any extra details..."
+              value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
         </Card>
 
@@ -201,11 +185,11 @@ export default function AddExpensePage() {
   )
 }
 
-function ModeTab({ active, onClick, label, locked }: { active: boolean; onClick: () => void; label: string; locked?: boolean }) {
+function ModeTab({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
     <button onClick={onClick}
       className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
-        active ? 'bg-[#0A7163] text-white' : locked ? 'text-[#2a3145]' : 'text-[#4a5568] hover:text-[#8892aa]'
+        active ? 'bg-[#0A7163] text-white' : 'text-[#4a5568] hover:text-[#8892aa]'
       }`}>
       {label}
     </button>

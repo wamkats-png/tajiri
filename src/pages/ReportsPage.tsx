@@ -39,8 +39,7 @@ function CustomTooltip({ active, payload, label, currency }: any) {
 
 export default function ReportsPage() {
   const navigate = useNavigate()
-  const { tracker1, tracker2, activeTrackerSlot, getPlan } = useAppStore()
-  const plan = getPlan()
+  const { tracker1, tracker2, activeTrackerSlot } = useAppStore()
 
   const [period, setPeriod]       = useState<Period>('month')
   const [trackerId, setTrackerId] = useState(activeTrackerSlot)
@@ -154,7 +153,7 @@ export default function ReportsPage() {
         <div className="flex flex-wrap gap-3 items-center justify-between">
           <div className="flex gap-2">
             {tracker1 && <TrackerTab tracker={tracker1} active={trackerId === 'tracker1'} onClick={() => setTrackerId('tracker1')} />}
-            {tracker2 && plan === 'business' && <TrackerTab tracker={tracker2} active={trackerId === 'tracker2'} onClick={() => setTrackerId('tracker2')} />}
+            {tracker2 && <TrackerTab tracker={tracker2} active={trackerId === 'tracker2'} onClick={() => setTrackerId('tracker2')} />}
           </div>
           <div className="flex gap-1.5 rounded-xl border border-[#2a3145] bg-[#181d27] p-1">
             {(['week','month','3months','year'] as Period[]).map((p) => (
