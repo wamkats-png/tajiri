@@ -1,175 +1,136 @@
-import { NavLink, useNavigate } from 'react-router-dom'
-import {
-  LayoutDashboard, Wallet, PlusCircle, Target,
-  MessageSquare, BarChart3, Settings, LogOut, Zap,
-} from 'lucide-react'
-import { logOut } from '@/services/auth'
+import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { LayoutDashboard, PlusCircle, Target, MessageSquare, BarChart3, Settings, LogOut, X, ChevronRight } from 'lucide-react'
 import { useAppStore } from '@/store'
+import { logOut } from '@/services/auth'
 
-const NAV_ITEMS = [
-  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/tracker/tracker1', icon: Wallet,     label: 'Tracker 1' },
-  { to: '/add-expense', icon: PlusCircle,      label: 'Add Expense' },
-  { to: '/budgets',     icon: Target,          label: 'Budgets' },
-  { to: '/chat',        icon: MessageSquare,   label: 'AI Chat' },
-  { to: '/reports',     icon: BarChart3,       label: 'Reports' },
+const NAV = [
+  { label: 'Dashboard',    icon: LayoutDashboard, to: '/' },
+  { label: 'Add Expense',  icon: PlusCircle,      to: '/add-expense' },
+  { label: 'Budgets',      icon: Target,           to: '/budgets' },
+  { label: 'AI Chat',      icon: MessageSquare,    to: '/chat' },
+  { label: 'Reports',      icon: BarChart3,        to: '/reports' },
+  { label: 'Settings',     icon: Settings,         to: '/settings' },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  open?: boolean
+  onClose?: () => void
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
   const navigate  = useNavigate()
-  const { user, tracker1, tracker2, getPlan, setUser } = useAppStore()
-  const plan      = getPlan()
+  const location  = useLocation()
+  const { user, tracker1, tracker2, setUser } = useAppStore()
+  const [loggingOut, setLoggingOut] = useState(false)
 
   async function handleLogout() {
+    setLoggingOut(true)
     await logOut()
     setUser(null)
     navigate('/login')
   }
 
+  function go(to: string) {
+    navigate(to)
+    onClose?.()
+  }
+
   return (
-    <div className="w-64 h-full flex flex-col border-r border-[#2a3145] bg-[#0d1117]">
+    <>
+      {/* Mobile backdrop */}
+      {open && (
+        <div className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={onClose} />
+      )}
 
-      {/* Logo */}
-      <div className="px-6 py-6 flex items-center gap-3 border-b border-[#2a3145]">
-        <div className="w-9 h-9 rounded-xl bg-[#0A7163] flex items-center justify-center shadow-lg shadow-[#0A7163]/30 flex-shrink-0">
-          <span className="text-base font-black text-white" style={{ fontFamily: 'Syne, sans-serif' }}>T</span>
-        </div>
-        <div>
-          <div className="text-sm font-bold text-[#f0f4ff]" style={{ fontFamily: 'Syne, sans-serif' }}>Tajiri</div>
-          <div className="text-[10px] text-[#4a5568]">Smart Money</div>
-        </div>
-      </div>
+      <aside className={`
+        fixed top-0 left-0 h-full z-50 w-64 bg-[#0d1117] border-r border-[#2a3145] flex flex-col
+        transition-transform duration-300 ease-in-out
+        ${open ? 'translate-x-0' : '-translate-x-full'}
+        lg:relative lg:translate-x-0 lg:flex
+      `}>
 
-      {/* Tracker switcher */}
-      <div className="px-4 py-4 border-b border-[#2a3145] space-y-1.5">
-        <p className="text-[10px] font-semibold text-[#4a5568] uppercase tracking-widest px-2 mb-2">Trackers</p>
-
-        <TrackerButton
-          slot="tracker1"
-          name={tracker1?.name ?? 'Tracker 1'}
-          color={tracker1?.color ?? '#0A7163'}
-          active={!!tracker1}
-        />
-
-        {plan === 'business' ? (
-          <TrackerButton
-            slot="tracker2"
-            name={tracker2?.name ?? 'Tracker 2'}
-            color={tracker2?.color ?? '#3B82F6'}
-            active={!!tracker2}
-          />
-        ) : (
-          <button
-            onClick={() => navigate('/upgrade')}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-dashed border-[#2a3145] hover:border-[#F59E0B]/40 hover:bg-[#F59E0B]/5 transition-all duration-200 group"
-          >
-            <div className="w-6 h-6 rounded-lg bg-[#F59E0B]/10 flex items-center justify-center">
-              <Zap size={12} className="text-[#F59E0B]" />
+        {/* Logo */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-[#2a3145]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#0A7163] flex items-center justify-center shadow-lg shadow-[#0A7163]/30">
+              <span className="text-sm font-black text-white" style={{ fontFamily: 'Syne, sans-serif' }}>T</span>
             </div>
-            <span className="text-xs text-[#4a5568] group-hover:text-[#F59E0B] transition-colors">Unlock Tracker 2</span>
+            <span className="text-base font-bold text-[#f0f4ff]" style={{ fontFamily: 'Syne, sans-serif' }}>Tajiri</span>
+          </div>
+          <button onClick={onClose} className="lg:hidden text-[#4a5568] hover:text-[#f0f4ff] transition-colors">
+            <X size={18} />
           </button>
-        )}
-      </div>
-
-      {/* Nav links */}
-      <nav className="flex-1 px-4 py-4 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) => `
-              flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-              transition-all duration-200
-              ${isActive
-                ? 'bg-[#0A7163]/15 text-[#0D9B87] border border-[#0A7163]/20'
-                : 'text-[#8892aa] hover:text-[#f0f4ff] hover:bg-[#1e2535]'}
-            `}
-          >
-            <Icon size={17} />
-            {label}
-          </NavLink>
-        ))}
-      </nav>
-
-      {/* Bottom section */}
-      <div className="px-4 py-4 border-t border-[#2a3145] space-y-0.5">
-        {/* Upgrade banner (free plan) */}
-
-        <NavLink
-          to="/settings"
-          className={({ isActive }) => `
-            flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-            transition-all duration-200
-            ${isActive ? 'bg-[#0A7163]/15 text-[#0D9B87]' : 'text-[#8892aa] hover:text-[#f0f4ff] hover:bg-[#1e2535]'}
-          `}
-        >
-          <Settings size={17} />
-          Settings
-        </NavLink>
+        </div>
 
         {/* User */}
-        <div className="flex items-center gap-3 px-3 py-2.5 mt-1">
-          <div className="w-8 h-8 rounded-full bg-[#0A7163]/20 border border-[#0A7163]/30 flex items-center justify-center flex-shrink-0">
-            {user?.photoURL
-              ? <img src={user.photoURL} className="w-8 h-8 rounded-full object-cover" alt="" />
-              : <span className="text-xs font-bold text-[#0D9B87]">
-                  {user?.displayName?.[0]?.toUpperCase() ?? 'U'}
-                </span>
-            }
+        <div className="px-4 py-4 border-b border-[#2a3145]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#0A7163]/20 border border-[#0A7163]/30 flex items-center justify-center flex-shrink-0">
+              {user?.photoURL
+                ? <img src={user.photoURL} className="w-9 h-9 rounded-xl object-cover" alt="" />
+                : <span className="text-sm font-bold text-[#0D9B87]">{user?.displayName?.[0]?.toUpperCase() ?? 'U'}</span>
+              }
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-[#f0f4ff] truncate">{user?.displayName}</p>
+              <p className="text-[10px] text-[#4a5568] truncate">{user?.email}</p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs font-medium text-[#f0f4ff] truncate">{user?.displayName}</div>
-            <div className="text-[10px] text-[#4a5568] capitalize">{plan} plan</div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="text-[#4a5568] hover:text-[#EF4444] transition-colors p-1 rounded-lg hover:bg-[#EF4444]/10"
-            title="Sign out"
-          >
-            <LogOut size={14} />
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+          {NAV.map(({ label, icon: Icon, to }) => {
+            const active = location.pathname === to
+            return (
+              <button key={to} onClick={() => go(to)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                  active
+                    ? 'bg-[#0A7163]/15 text-[#0D9B87] border border-[#0A7163]/20'
+                    : 'text-[#4a5568] hover:text-[#f0f4ff] hover:bg-[#1e2535]'
+                }`}>
+                <Icon size={16} className={active ? 'text-[#0D9B87]' : ''} />
+                {label}
+              </button>
+            )
+          })}
+
+          {/* Trackers section */}
+          {(tracker1 || tracker2) && (
+            <div className="pt-4">
+              <p className="text-[10px] font-semibold text-[#2a3145] uppercase tracking-widest px-3 mb-2">Trackers</p>
+              <div className="space-y-0.5">
+                {tracker1 && (
+                  <button onClick={() => go('/tracker/tracker1')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#1e2535] transition-all group">
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: tracker1.color }} />
+                    <span className="text-sm text-[#8892aa] group-hover:text-[#f0f4ff] truncate flex-1 text-left">{tracker1.name}</span>
+                    <ChevronRight size={12} className="text-[#2a3145] group-hover:text-[#4a5568]" />
+                  </button>
+                )}
+                {tracker2 && (
+                  <button onClick={() => go('/tracker/tracker2')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#1e2535] transition-all group">
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: tracker2.color }} />
+                    <span className="text-sm text-[#8892aa] group-hover:text-[#f0f4ff] truncate flex-1 text-left">{tracker2.name}</span>
+                    <ChevronRight size={12} className="text-[#2a3145] group-hover:text-[#4a5568]" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </nav>
+
+        {/* Sign out */}
+        <div className="px-3 py-4 border-t border-[#2a3145]">
+          <button onClick={handleLogout} disabled={loggingOut}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#4a5568] hover:text-[#EF4444] hover:bg-[#EF4444]/5 transition-all duration-150 disabled:opacity-50">
+            <LogOut size={16} />
+            {loggingOut ? 'Signing out…' : 'Sign Out'}
           </button>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function TrackerButton({ slot, name, color, active }: {
-  slot: string; name: string; color: string; active: boolean
-}) {
-  const navigate = useNavigate()
-  const { activeTrackerSlot, setActiveTrackerSlot } = useAppStore()
-  const isActive = activeTrackerSlot === slot
-
-  return (
-    <button
-      onClick={() => {
-        if (active) {
-          setActiveTrackerSlot(slot as any)
-          navigate(`/tracker/${slot}`)
-        }
-      }}
-      className={`
-        w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left
-        transition-all duration-200
-        ${isActive
-          ? 'bg-[#1e2535] border border-[#2a3145]'
-          : 'hover:bg-[#1a1f2e]'}
-        ${!active ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-      `}
-    >
-      <div
-        className="w-6 h-6 rounded-lg flex-shrink-0"
-        style={{ background: `${color}25`, border: `1.5px solid ${color}50` }}
-      >
-        <div className="w-full h-full rounded-lg flex items-center justify-center">
-          <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-        </div>
-      </div>
-      <span className="text-xs font-medium text-[#f0f4ff] truncate">{name}</span>
-      {isActive && (
-        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#0A7163]" />
-      )}
-    </button>
+      </aside>
+    </>
   )
 }

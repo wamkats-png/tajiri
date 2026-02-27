@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Zap, ChevronRight, Lock, Check, Edit2, Globe, CreditCard } from 'lucide-react'
+import { LogOut, ChevronRight, Check, Edit2, Globe, CreditCard } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -13,23 +13,22 @@ import { CURRENCIES, TRACKER_COLORS } from '@/utils/constants'
 
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { user, tracker1, tracker2, getPlan, setUser, setTracker } = useAppStore()
-  const plan = getPlan()
+  const { user, tracker1, tracker2, setUser, setTracker } = useAppStore()
 
-  const [logoutModal, setLogoutModal]   = useState(false)
-  const [profileModal, setProfileModal] = useState(false)
+  const [logoutModal, setLogoutModal]     = useState(false)
+  const [profileModal, setProfileModal]   = useState(false)
   const [currencyModal, setCurrencyModal] = useState(false)
   const [tracker1Modal, setTracker1Modal] = useState(false)
-  const [loggingOut, setLoggingOut]     = useState(false)
-  const [saving, setSaving]             = useState(false)
+  const [tracker2Modal, setTracker2Modal] = useState(false)
+  const [loggingOut, setLoggingOut]       = useState(false)
+  const [saving, setSaving]               = useState(false)
 
-  // Profile edit state
-  const [displayName, setDisplayName]   = useState(user?.displayName ?? '')
+  const [displayName, setDisplayName]         = useState(user?.displayName ?? '')
   const [defaultCurrency, setDefaultCurrency] = useState(user?.defaultCurrency ?? 'UGX')
-
-  // Tracker rename state (business only)
-  const [t1Name, setT1Name] = useState(tracker1?.name ?? '')
+  const [t1Name, setT1Name]   = useState(tracker1?.name ?? '')
   const [t1Color, setT1Color] = useState(tracker1?.color ?? '#0A7163')
+  const [t2Name, setT2Name]   = useState(tracker2?.name ?? '')
+  const [t2Color, setT2Color] = useState(tracker2?.color ?? '#3B82F6')
 
   async function handleLogout() {
     setLoggingOut(true)
@@ -45,29 +44,30 @@ export default function SettingsPage() {
       await updateUserProfile(user.uid, { displayName, defaultCurrency })
       setUser({ ...user, displayName, defaultCurrency })
       setProfileModal(false)
-    } catch { /* silent */ } finally { setSaving(false) }
+    } catch { } finally { setSaving(false) }
   }
 
-  async function handleSaveTracker1() {
-    if (!user || !tracker1) return
+  async function handleSaveTracker(slot: 'tracker1' | 'tracker2', name: string, color: string) {
+    if (!user) return
+    const tracker = slot === 'tracker1' ? tracker1 : tracker2
+    if (!tracker) return
     setSaving(true)
     try {
-      const updated = { ...tracker1, name: t1Name.trim() || tracker1.name, color: t1Color }
+      const updated = { ...tracker, name: name.trim() || tracker.name, color }
       await saveTracker(user.uid, updated)
-      setTracker('tracker1', updated)
-      setTracker1Modal(false)
-    } catch { /* silent */ } finally { setSaving(false) }
+      setTracker(slot, updated)
+      slot === 'tracker1' ? setTracker1Modal(false) : setTracker2Modal(false)
+    } catch { } finally { setSaving(false) }
   }
 
   return (
     <AppShell title="Settings">
       <div className="space-y-6 fade-up max-w-lg mx-auto">
 
-        {/* ── Profile ── */}
+        {/* Profile */}
         <section>
           <h2 className="text-xs font-semibold text-[#4a5568] uppercase tracking-widest mb-3">Account</h2>
           <Card>
-            {/* Avatar + info */}
             <div className="flex items-center gap-4 pb-4 mb-4 border-b border-[#2a3145]">
               <div className="w-14 h-14 rounded-2xl bg-[#0A7163]/20 border border-[#0A7163]/30 flex items-center justify-center flex-shrink-0">
                 {user?.photoURL
@@ -78,88 +78,43 @@ export default function SettingsPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-base font-semibold text-[#f0f4ff] truncate">{user?.displayName}</p>
                 <p className="text-sm text-[#4a5568] truncate">{user?.email}</p>
-                <div className={`inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold ${plan === 'business' ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-[#0A7163]/10 text-[#0D9B87]'}`}>
-                  {plan === 'business' ? '⚡ Business' : '🌱 Free Plan'}
+                <div className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-[#0A7163]/10 text-[#0D9B87]">
+                  ✅ All Features Unlocked
                 </div>
               </div>
             </div>
-
             <div className="space-y-0.5">
               <SettingRow icon={<Edit2 size={14} />} label="Edit Profile" onClick={() => setProfileModal(true)} />
               <SettingRow icon={<Globe size={14} />} label="Default Currency" value={user?.defaultCurrency ?? 'UGX'} onClick={() => setCurrencyModal(true)} />
-              <SettingRow icon={<CreditCard size={14} />} label="Subscription" value={plan === 'business' ? 'Business' : 'Free'} onClick={() => navigate('/upgrade')} />
+              <SettingRow icon={<CreditCard size={14} />} label="Plan" value="Free · All Features" />
             </div>
           </Card>
         </section>
 
-        {/* ── Trackers ── */}
+        {/* Trackers */}
         <section>
           <h2 className="text-xs font-semibold text-[#4a5568] uppercase tracking-widest mb-3">Trackers</h2>
           <div className="space-y-3">
-
-            {/* Tracker 1 */}
             {tracker1 && (
-              <div className="rounded-2xl border border-[#2a3145] bg-[#181d27] p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                      style={{ background: `${tracker1.color}20`, border: `1.5px solid ${tracker1.color}40` }}>
-                      <div className="w-3 h-3 rounded-full" style={{ background: tracker1.color }} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-[#f0f4ff]">{tracker1.name}</div>
-                      <div className="text-xs text-[#4a5568]">{tracker1.currency} · Active</div>
-                    </div>
-                  </div>
-                  {plan === 'business' ? (
-                    <button onClick={() => { setT1Name(tracker1.name); setT1Color(tracker1.color); setTracker1Modal(true) }}
-                      className="text-xs text-[#0D9B87] hover:text-[#0A7163] transition-colors flex items-center gap-1">
-                      <Edit2 size={11} /> Edit
-                    </button>
-                  ) : (
-                    <span className="text-[10px] text-[#4a5568] flex items-center gap-1"><Lock size={10} /> Name locked</span>
-                  )}
-                </div>
+              <TrackerCard
+                tracker={tracker1}
+                onEdit={() => { setT1Name(tracker1.name); setT1Color(tracker1.color); setTracker1Modal(true) }}
+              />
+            )}
+            {tracker2 ? (
+              <TrackerCard
+                tracker={tracker2}
+                onEdit={() => { setT2Name(tracker2.name); setT2Color(tracker2.color); setTracker2Modal(true) }}
+              />
+            ) : (
+              <div className="rounded-2xl border border-dashed border-[#2a3145] bg-[#181d27]/50 p-4 text-center">
+                <p className="text-xs text-[#4a5568]">Tracker 2 not set up yet. Complete onboarding to add it.</p>
               </div>
             )}
-
-            {/* Tracker 2 */}
-            <div className="rounded-2xl border border-dashed border-[#2a3145] bg-[#181d27]/50 p-4">
-              {tracker2 && plan === 'business' ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                      style={{ background: `${tracker2.color}20`, border: `1.5px solid ${tracker2.color}40` }}>
-                      <div className="w-3 h-3 rounded-full" style={{ background: tracker2.color }} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-[#f0f4ff]">{tracker2.name}</div>
-                      <div className="text-xs text-[#4a5568]">{tracker2.currency} · Active</div>
-                    </div>
-                  </div>
-                  <button className="text-xs text-[#0D9B87] hover:text-[#0A7163] transition-colors flex items-center gap-1">
-                    <Edit2 size={11} /> Edit
-                  </button>
-                </div>
-              ) : (
-                <button onClick={() => navigate('/upgrade')} className="w-full flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl border border-dashed border-[#2a3145] flex items-center justify-center">
-                      <Zap size={14} className="text-[#F59E0B]" />
-                    </div>
-                    <div className="text-left">
-                      <div className="text-sm font-medium text-[#f0f4ff]">Tracker 2</div>
-                      <div className="text-xs text-[#F59E0B]">Upgrade to unlock</div>
-                    </div>
-                  </div>
-                  <ChevronRight size={14} className="text-[#4a5568]" />
-                </button>
-              )}
-            </div>
           </div>
         </section>
 
-        {/* ── About ── */}
+        {/* About */}
         <section>
           <h2 className="text-xs font-semibold text-[#4a5568] uppercase tracking-widest mb-3">About</h2>
           <Card>
@@ -171,17 +126,14 @@ export default function SettingsPage() {
           </Card>
         </section>
 
-        {/* ── Sign out ── */}
         <Button variant="danger" fullWidth onClick={() => setLogoutModal(true)}>
           <LogOut size={15} /> Sign Out
         </Button>
 
-        <p className="text-center text-[10px] text-[#2a3145] pb-4">
-          Tajiri · Smart money, clear picture.
-        </p>
+        <p className="text-center text-[10px] text-[#2a3145] pb-4">Tajiri · Smart money, clear picture.</p>
       </div>
 
-      {/* Edit Profile Modal */}
+      {/* Edit Profile */}
       <Modal open={profileModal} onClose={() => setProfileModal(false)} title="Edit Profile">
         <div className="space-y-4">
           <Input label="Display Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
@@ -192,7 +144,7 @@ export default function SettingsPage() {
         </div>
       </Modal>
 
-      {/* Currency Modal */}
+      {/* Currency */}
       <Modal open={currencyModal} onClose={() => setCurrencyModal(false)} title="Default Currency">
         <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
           {CURRENCIES.map((c) => (
@@ -211,30 +163,31 @@ export default function SettingsPage() {
         </div>
       </Modal>
 
-      {/* Tracker 1 Edit Modal (business) */}
-      <Modal open={tracker1Modal} onClose={() => setTracker1Modal(false)} title="Edit Tracker">
-        <div className="space-y-4">
-          <Input label="Tracker Name" value={t1Name} onChange={(e) => setT1Name(e.target.value)} placeholder="e.g. Home Budget" />
-          <div>
-            <label className="text-sm font-medium text-[#8892aa] block mb-3">Color</label>
-            <div className="flex gap-2 flex-wrap">
-              {TRACKER_COLORS.map((c) => (
-                <button key={c} onClick={() => setT1Color(c)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
-                  style={{ background: c, boxShadow: t1Color === c ? `0 0 0 2px #0f1117, 0 0 0 4px ${c}` : 'none' }}>
-                  {t1Color === c && <Check size={12} className="text-white" strokeWidth={3} />}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex gap-3 pt-1">
-            <Button variant="secondary" fullWidth onClick={() => setTracker1Modal(false)}>Cancel</Button>
-            <Button fullWidth loading={saving} onClick={handleSaveTracker1}>Save</Button>
-          </div>
-        </div>
-      </Modal>
+      {/* Edit Tracker 1 */}
+      <TrackerEditModal
+        open={tracker1Modal}
+        onClose={() => setTracker1Modal(false)}
+        name={t1Name}
+        color={t1Color}
+        onNameChange={setT1Name}
+        onColorChange={setT1Color}
+        onSave={() => handleSaveTracker('tracker1', t1Name, t1Color)}
+        saving={saving}
+      />
 
-      {/* Logout Modal */}
+      {/* Edit Tracker 2 */}
+      <TrackerEditModal
+        open={tracker2Modal}
+        onClose={() => setTracker2Modal(false)}
+        name={t2Name}
+        color={t2Color}
+        onNameChange={setT2Name}
+        onColorChange={setT2Color}
+        onSave={() => handleSaveTracker('tracker2', t2Name, t2Color)}
+        saving={saving}
+      />
+
+      {/* Logout */}
       <Modal open={logoutModal} onClose={() => setLogoutModal(false)} title="Sign Out">
         <p className="text-sm text-[#8892aa] mb-6">Are you sure you want to sign out of Tajiri?</p>
         <div className="flex gap-3">
@@ -243,6 +196,54 @@ export default function SettingsPage() {
         </div>
       </Modal>
     </AppShell>
+  )
+}
+
+function TrackerCard({ tracker, onEdit }: { tracker: any; onEdit: () => void }) {
+  return (
+    <div className="rounded-2xl border border-[#2a3145] bg-[#181d27] p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ background: `${tracker.color}20`, border: `1.5px solid ${tracker.color}40` }}>
+            <div className="w-3 h-3 rounded-full" style={{ background: tracker.color }} />
+          </div>
+          <div>
+            <div className="text-sm font-medium text-[#f0f4ff]">{tracker.name}</div>
+            <div className="text-xs text-[#4a5568]">{tracker.currency} · Active</div>
+          </div>
+        </div>
+        <button onClick={onEdit} className="text-xs text-[#0D9B87] hover:text-[#0A7163] transition-colors flex items-center gap-1">
+          <Edit2 size={11} /> Edit
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function TrackerEditModal({ open, onClose, name, color, onNameChange, onColorChange, onSave, saving }: any) {
+  return (
+    <Modal open={open} onClose={onClose} title="Edit Tracker">
+      <div className="space-y-4">
+        <Input label="Tracker Name" value={name} onChange={(e: any) => onNameChange(e.target.value)} placeholder="e.g. Home Budget" />
+        <div>
+          <label className="text-sm font-medium text-[#8892aa] block mb-3">Color</label>
+          <div className="flex gap-2 flex-wrap">
+            {TRACKER_COLORS.map((c) => (
+              <button key={c} onClick={() => onColorChange(c)}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
+                style={{ background: c, boxShadow: color === c ? `0 0 0 2px #0f1117, 0 0 0 4px ${c}` : 'none' }}>
+                {color === c && <Check size={12} className="text-white" strokeWidth={3} />}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex gap-3 pt-1">
+          <Button variant="secondary" fullWidth onClick={onClose}>Cancel</Button>
+          <Button fullWidth loading={saving} onClick={onSave}>Save</Button>
+        </div>
+      </div>
+    </Modal>
   )
 }
 
