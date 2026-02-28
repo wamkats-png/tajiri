@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { onAuthChange, fetchUserProfile } from '@/services/auth'
+import { tokenManager } from '@/services/tokenManager'
 import { fetchTrackers } from '@/services/firestore'
 import { useAppStore } from '@/store'
 
 export function useAuth() {
-  const { user, setUser, setTracker } = useAppStore()
+  const { user, tokenState, setUser, setTokenState, setTracker } = useAppStore()
 
   useEffect(() => {
     const unsub = onAuthChange(async (firebaseUser) => {
@@ -29,5 +30,17 @@ export function useAuth() {
     return unsub
   }, [])
 
-  return { user }
+  // Subscribe to token rotation events and sync state to the store
+  useEffect(() => {
+    const unsub = tokenManager.subscribe(() => {
+      setTokenState(tokenManager.getState())
+    })
+
+    // Sync initial state
+    setTokenState(tokenManager.getState())
+
+    return unsub
+  }, [])
+
+  return { user, tokenState }
 }

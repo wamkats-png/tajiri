@@ -85,6 +85,29 @@ export type GatedFeature =
   | 'rename_tracker'
   | 'spending_insights'
 
+// ─── Auth token types ────────────────────────────────────────────────────────
+
+export interface TokenState {
+  /** Whether a valid token is currently held */
+  isAuthenticated: boolean
+  /** When the current token was issued */
+  issuedAt: string | null
+  /** When the current token expires */
+  expiresAt: string | null
+  /** Whether a rotation is currently in progress */
+  isRotating: boolean
+  /** How many times the token has been rotated this session */
+  rotationCount: number
+}
+
+export const INITIAL_TOKEN_STATE: TokenState = {
+  isAuthenticated: false,
+  issuedAt: null,
+  expiresAt: null,
+  isRotating: false,
+  rotationCount: 0,
+}
+
 // ALL features are free — no paywalls
 export const FEATURE_GATES: Record<GatedFeature, Plan> = {
   tracker2:          'free',

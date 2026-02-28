@@ -2,11 +2,13 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
   UserProfile, Tracker, TrackerSlot, Expense, Budget,
-  AIUsage, ChatMessage, Plan, GatedFeature,
+  AIUsage, ChatMessage, Plan, GatedFeature, TokenState,
 } from '@/types'
+import { INITIAL_TOKEN_STATE } from '@/types'
 
 interface AppState {
   user: UserProfile | null
+  tokenState: TokenState
   tracker1: Tracker | null
   tracker2: Tracker | null
   activeTrackerSlot: TrackerSlot
@@ -16,6 +18,7 @@ interface AppState {
   chatMessages: ChatMessage[]
 
   setUser: (user: UserProfile | null) => void
+  setTokenState: (state: TokenState) => void
   setTracker: (slot: TrackerSlot, tracker: Tracker | null) => void
   setActiveTracker: (slot: TrackerSlot) => void
   setExpenses: (expenses: Expense[]) => void
@@ -38,6 +41,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       user: null,
+      tokenState: INITIAL_TOKEN_STATE,
       tracker1: null,
       tracker2: null,
       activeTrackerSlot: 'tracker1',
@@ -47,6 +51,7 @@ export const useAppStore = create<AppState>()(
       chatMessages: [],
 
       setUser:          (user) => set({ user }),
+      setTokenState:    (tokenState) => set({ tokenState }),
       setTracker:       (slot, tracker) => set({ [slot]: tracker }),
       setActiveTracker: (slot) => set({ activeTrackerSlot: slot }),
       setExpenses:      (expenses) => set({ expenses }),
