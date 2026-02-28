@@ -31,12 +31,7 @@ export async function authenticatedFetch(
 
       // If unauthorized and we haven't exhausted retries, force-rotate and retry
       if (response.status === 401 && attempt < MAX_AUTH_RETRIES) {
-        // Force a fresh token by calling getValidToken after the token
-        // manager detects the current one is stale on the next cycle.
-        // We achieve this by directly requesting a rotation via setUser.
-        // Instead, we rely on the built-in expiry detection — but here the
-        // server told us the token is bad, so we need to force refresh.
-        // The simplest approach: re-init the token manager with the same user.
+        await tokenManager.forceRotate()
         continue
       }
 

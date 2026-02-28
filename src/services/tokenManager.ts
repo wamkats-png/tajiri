@@ -101,6 +101,26 @@ class TokenManager {
     return () => this.listeners.delete(listener)
   }
 
+  /**
+   * Force a token rotation — use when the server rejects the current token
+   * (e.g. 401 response) even though it hasn't expired client-side.
+   */
+  async forceRotate(): Promise<string> {
+    if (!this.currentUser) {
+      throw new Error('No authenticated user — cannot rotate token')
+    }
+
+    // If a rotation is already in progress, wait for it
+    if (this.rotating) {
+      return new Promise<string>((resolve, reject) => {
+        this.pendingResolvers.push({ resolve, reject })
+      })
+    }
+
+    await this.rotate(/* force */ true)
+    return this.tokenInfo!.token
+  }
+
   /** Tear down timers and state. Safe to call multiple times. */
   cleanup(): void {
     if (this.rotationTimer) {
