@@ -143,7 +143,7 @@ export async function deleteBudget(uid: string, budgetId: string): Promise<void>
 export async function fetchAIUsage(uid: string): Promise<AIUsage> {
   const snap = await getDoc(doc(db, 'users', uid, 'meta', 'aiUsage'))
   if (!snap.exists()) {
-    return { count: 0, resetAt: new Date().toISOString(), limit: 10 }
+    return { count: 0, resetAt: new Date().toISOString(), limit: 999999 }
   }
   return cleanDoc<AIUsage>(snap.data())
 }

@@ -2,14 +2,14 @@
 
 export const PLAN_LIMITS = {
   free: {
-    trackers: 1,
-    aiInteractionsPerMonth: 10,
-    canRenameTrackers: false,
-    canScanReceipts: false,
-    canUseNaturalLanguage: false,
-    canExportCSV: false,
-    canAccessReports: false,
-    canAccessInsights: false,
+    trackers: 2,
+    aiInteractionsPerMonth: Infinity,
+    canRenameTrackers: true,
+    canScanReceipts: true,
+    canUseNaturalLanguage: true,
+    canExportCSV: true,
+    canAccessReports: true,
+    canAccessInsights: true,
   },
   business: {
     trackers: 2,
