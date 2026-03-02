@@ -155,7 +155,15 @@ export default function Payments() {
                     <td className={`px-5 py-3 text-right font-medium ${paid > 0 ? 'text-green-700' : 'text-slate-300'}`}>
                       {paid > 0 ? ugx(paid) : '—'}
                     </td>
-                    <td className="px-5 py-3 text-slate-500 capitalize">{payment?.method || '—'}</td>
+                    <td className="px-5 py-3 text-slate-500">
+                      <span className="capitalize">{payment?.method || '—'}</span>
+                      {payment?.paid_date && (
+                        <p className="text-xs text-slate-400">{payment.paid_date}</p>
+                      )}
+                      {payment?.notes && (
+                        <p className="text-xs text-slate-400 italic">{payment.notes}</p>
+                      )}
+                    </td>
                     <td className={`px-5 py-3 text-right font-semibold ${balance === 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {balance === 0 ? '✓' : ugx(balance)}
                     </td>

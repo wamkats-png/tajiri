@@ -67,6 +67,61 @@ export async function parseIntent(input) {
 }
 
 /**
+ * Answer a natural language query about the landlord's portfolio.
+ * @param {string} question
+ * @param {object} context  - live data snapshot { properties, units, tenants, leases, payments }
+ * @returns {Promise<string>}  plain text answer (1-3 sentences)
+ */
+export async function answerQuery(question, context) {
+  const now = new Date()
+  const contextText = `
+Today: ${now.toDateString()} (Month ${now.getMonth() + 1}, Year ${now.getFullYear()})
+
+PROPERTIES (${context.properties.length}):
+${context.properties.map(p => `  - ${p.name}${p.address ? ` at ${p.address}` : ''}`).join('\n') || '  none'}
+
+UNITS (${context.units.length}):
+${context.units.map(u => {
+  const prop = context.properties.find(p => p.id === u.property_id)
+  return `  - ${u.unit_name} in ${prop?.name || '?'}: ${u.status}`
+}).join('\n') || '  none'}
+
+TENANTS (${context.tenants.length}):
+${context.tenants.map(t => {
+  const lease = context.leases.find(l => l.tenant_id === t.id && l.status === 'active')
+  const unit = lease ? context.units.find(u => u.id === lease.unit_id) : null
+  const prop = unit ? context.properties.find(p => p.id === unit.property_id) : null
+  return `  - ${t.name}${t.phone ? ` (${t.phone})` : ''}${prop ? ` → ${prop.name} ${unit.unit_name}` : ' (unassigned)'}${lease ? `, UGX ${Number(lease.monthly_rent_ugx).toLocaleString()}/month` : ''}`
+}).join('\n') || '  none'}
+
+ACTIVE LEASES (${context.leases.filter(l => l.status === 'active').length}):
+${context.leases.filter(l => l.status === 'active').map(l => {
+  const t = context.tenants.find(t => t.id === l.tenant_id)
+  const u = context.units.find(u => u.id === l.unit_id)
+  return `  - ${t?.name || '?'} in ${u?.unit_name || '?'}: UGX ${Number(l.monthly_rent_ugx).toLocaleString()}/month (since ${l.start_date})`
+}).join('\n') || '  none'}
+
+RECENT PAYMENTS (last 60 days, ${context.payments.length} records):
+${context.payments.map(p => {
+  const lease = context.leases.find(l => l.id === p.lease_id)
+  const tenant = lease ? context.tenants.find(t => t.id === lease.tenant_id) : null
+  return `  - ${tenant?.name || '?'}: UGX ${Number(p.amount_ugx).toLocaleString()} for ${p.month}/${p.year}${p.method ? ` via ${p.method}` : ''}${p.paid_date ? ` on ${p.paid_date}` : ''}`
+}).join('\n') || '  none'}
+`.trim()
+
+  const res = await getClient().messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 300,
+    system: `You are a helpful assistant for a Ugandan landlord. Answer questions about their properties, tenants, and payments concisely and clearly. Use UGX for amounts. Be direct — 1 to 3 sentences max. If data is missing to answer the question, say so briefly.`,
+    messages: [
+      { role: 'user', content: `Data:\n${contextText}\n\nQuestion: ${question}` },
+    ],
+  })
+
+  return res.content[0].text.trim()
+}
+
+/**
  * Extract tenant info from a National ID photo using Claude Vision.
  * @param {string} base64Image  - base64 encoded image (no data URI prefix)
  * @param {string} mimeType     - e.g. "image/jpeg"

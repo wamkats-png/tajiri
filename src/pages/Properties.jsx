@@ -8,14 +8,21 @@ export default function Properties() {
   const [units, setUnits] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const [leases, setLeases] = useState([])
+  const [tenants, setTenants] = useState([])
+
   async function load() {
     setLoading(true)
-    const [{ data: props }, { data: units }] = await Promise.all([
+    const [{ data: props }, { data: units }, { data: leases }, { data: tenants }] = await Promise.all([
       supabase.from('properties').select('*').order('created_at'),
       supabase.from('units').select('*').order('unit_name'),
+      supabase.from('leases').select('*').eq('status', 'active'),
+      supabase.from('tenants').select('id, name, phone'),
     ])
     setProperties(props || [])
     setUnits(units || [])
+    setLeases(leases || [])
+    setTenants(tenants || [])
     setLoading(false)
   }
 
@@ -52,6 +59,8 @@ export default function Properties() {
               key={p.id}
               property={p}
               units={units.filter(u => u.property_id === p.id)}
+              leases={leases}
+              tenants={tenants}
             />
           ))}
         </div>

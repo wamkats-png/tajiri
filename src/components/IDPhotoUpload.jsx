@@ -96,7 +96,7 @@ export default function IDPhotoUpload({ onTenantAdded }) {
         <div className="flex flex-col items-center py-4">
           <Camera size={28} className="text-slate-400 mb-2" />
           <p className="text-sm text-slate-600 font-medium mb-1">Add tenant via National ID photo</p>
-          <p className="text-xs text-slate-400 mb-3">GPT-4o will extract name, ID number, and date of birth</p>
+          <p className="text-xs text-slate-400 mb-3">Claude Vision will extract name, ID number, and date of birth</p>
           <label className="cursor-pointer px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors">
             Choose photo
             <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
@@ -107,7 +107,7 @@ export default function IDPhotoUpload({ onTenantAdded }) {
       {stage === 'extracting' && (
         <div className="flex items-center justify-center gap-3 py-8">
           <Loader2 size={20} className="animate-spin text-green-600" />
-          <p className="text-sm text-slate-600">Reading ID card with GPT-4o Vision...</p>
+          <p className="text-sm text-slate-600">Reading ID card with Claude Vision...</p>
         </div>
       )}
 
