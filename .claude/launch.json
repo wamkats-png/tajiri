@@ -1,0 +1,32 @@
+{
+  "version": "0.1.0",
+  "configurations": [
+    {
+      "name": "Uganda Landlord App",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "5173"],
+      "port": 5173
+    },
+    {
+      "name": "RentFlow Uganda (Next.js)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev"],
+      "cwd": "rentflow-uganda",
+      "port": 3000
+    },
+    {
+      "name": "Uganda Tax Assistant (Vite)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js"],
+      "cwd": "uganda-tax-assistant",
+      "port": 5173
+    },
+    {
+      "name": "Uganda Tax Assistant (Express API)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "cwd": "uganda-tax-assistant",
+      "port": 3001
+    }
+  ]
+}
