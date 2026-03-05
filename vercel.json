@@ -1,4 +1,5 @@
 {
+  "name": "tajiri-ug",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
